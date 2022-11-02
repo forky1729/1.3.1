@@ -1,6 +1,6 @@
 # я не учитываю погрешность массы, потому что ЭтО сЛоЖнО
-
-# 1 =========================================================================================
+"""
+#1 =========================================================================================
 
 #основные данные
 r = 15 #mm
@@ -13,52 +13,58 @@ l = 176.8 #cm
 gl = 0.1 #cm
 
 def dl(n):
-  return ((n)*r/(2*h))
+  return (n*r/(2*h))
 
-def gdl(l, n):
-  return (l*((gn/n)**2 + (gh/h)**2)**(1/2))
+def gdl(l0, n):
+  return (l0*((gn/n)**2 + (gh/h)**2)**(1/2))
 
 #удлинение проволоки
-n1 = [12.2, 14.9, 17.7, 20.3, 22.8, 27.6, 25.2, 22.7, 20.1, 17.6, 14.8]
-m1 = [455.3, 700.1, 946.2, 1191.9, 1437.5, 1928.4, 1682.8, 1437.5, 1191.9, 946.2, 700.1]
+n1 = [17.7, 20.3, 22.8, 27.6, 25.2, 22.7, 20.1, 17.6]
+m1 = [946.2, 1191.9, 1437.5, 1928.4, 1682.8, 1437.5, 1191.9, 946.2]
 n2 = [17.8, 22.7, 27.6, 29.9, 31.8, 34.5, 32.2, 29.9, 25.2, 20.4, 17.8]
 m2 = [946.2, 1437.5, 1928.4, 2173.9, 2419.1, 2664.7, 2419.1, 2173.9, 1682.8, 1191.9, 946.2]
 n3 = [20.3, 25.2, 29.9, 32.2, 34.6, 39.2, 37.0, 32.4, 30.0, 25.2, 20.3]
 m3 = [1191.9, 1682.8, 2173.9, 2419.1, 2664.7, 3154.6, 2909.1, 2419.1, 2173.9, 1682.8, 1191.9]
 
-
-sum_k = 0
-sum_dk = 0
+sr_xy = 0
+sr_x = 0
+sr_y = 0
+sr_xsqr = 0
+sr_ysqr = 0
+j = len(n1) + len(n2) + len(n3)
 
 for i in range (0, len(n1)):
   print("dl", i, "=", dl(n1[i])*10, "mm", "      gdl", i, "=", gdl(dl(n1[i]), n1[i])*10, "mm")
-  sum_k += 9.81*m1[i]*0.001/(dl(n1[i])*0.01)
-  #print(9.81*m1[i]*0.001)
+  sr_xy += (9.81*m1[i]/1000)*(dl(n1[i])/100)
+  sr_x += dl(n1[i])/100
+  sr_y += 9.81*m1[i]/1000
+  sr_xsqr += (dl(n1[i])/100)**2
+  sr_ysqr += (9.81*m1[i]/1000)**2
   
 for i in range (0, len(n2)):
   print("dl", i, "=", dl(n2[i])*10, "mm", "      gdl", i, "=", gdl(dl(n2[i]), n2[i])*10, "mm")
-  sum_k += 9.81*m2[i]*0.001/(dl(n2[i])*0.01)
-  #print(9.81*m2[i]*0.001)
+  sr_xy += (9.81*m2[i]/1000)*(dl(n2[i])/100)
+  sr_x += dl(n2[i])/100
+  sr_y += 9.81*m2[i]/1000
+  sr_xsqr += (dl(n2[i])/100)**2
+  sr_ysqr += (9.81*m2[i]/1000)**2
   
 for i in range (0, len(n3)):
   print("dl", i, "=", dl(n3[i])*10, "mm", "      gdl", i, "=", gdl(dl(n3[i]), n3[i])*10, "mm")
-  sum_k += 9.81*m3[i]*0.001/(dl(n3[i])*0.01)
-  #print(9.81*m3[i]*0.001)
+  sr_xy += (9.81*m3[i]/1000)*(dl(n3[i])/100)
+  sr_x += dl(n3[i])/100
+  sr_y += 9.81*m3[i]/1000
+  sr_xsqr += (dl(n3[i])/100)**2
+  sr_ysqr += (9.81*m3[i]/1000)**2
 
-k = sum_k/(len(n1)+len(n2)+len(n3))
+sr_xy = sr_xy/j
+sr_x = sr_x/j
+sr_y = sr_y/j
+sr_xsqr = sr_xsqr/j
+sr_ysqr = sr_ysqr/j
 
-for j in range (0, len(n1)):
-  sum_dk += abs(k-9.81*m1[i]*0.001/(dl(n1[i])*0.01))**2
-  
-for j in range (0, len(n2)):
-  sum_dk += abs(k-9.81*m2[i]*0.001/(dl(n2[i])*0.01))**2
-  
-for j in range (0, len(n3)):
-  sum_dk += abs(k-9.81*m3[i]*0.001/(dl(n3[i])*0.01))**2
-
-
-
-gk = (sum_dk/((len(n1)+len(n2)+len(n3))*(len(n1)+len(n2)+len(n3)-1)))**(1/2)
+k = (sr_xy - sr_x*sr_y)/(sr_xsqr - sr_x**2)
+gk = ((1/(len(n1) + len(n2) + len(n3)))*((sr_ysqr-sr_y**2)/(sr_xsqr - sr_x**2)-k**2))**(1/2)
 print("k =", k, "+-", gk)
 
 E = k*l*0.01/(s*0.000001)
@@ -198,33 +204,29 @@ y = [y1, y2, y3, y4, y5, y6, y7, y8]
 f = [0, 0, 0, 0, 0, 0, 0, 0]
 df = [0, 0, 0, 0, 0, 0, 0, 0]
 
+
 for i in range (0,8):
-  sum_f = 0
-  if i!=4 and i!=5:
-    for j in range (0,11):
-      sum_f += 9.81*(m0 + m[i][j])/(y[i][j]-y0[i])
-      #print(9.81*(m0 + m[i][j])*0.001, "        ", (y[i][j]-y0[i]))
-    f[i] = sum_f/11
-  else:
-    for j in range (0,9):
-      sum_f += 9.81*(m0 + m[i][j])/(y[i][j]-y0[i])
-      print(9.81*(m0 + m[i][j])*0.001, "        ", (y[i][j]-y0[i]))
-    f[i] = sum_f/9
+  sr_xy = 0
+  sr_x = 0
+  sr_y = 0
+  sr_xsqr = 0
+  sr_ysqr = 0
+  for j in range (0,len(m[i])):
+    sr_xy = 9.81*(m0 + m[i][j])*0.001*(y[i][j]-y0[i])*0.001
+    sr_x = (y[i][j]-y0[i])*0.001
+    sr_y = 9.81*(m0 + m[i][j])*0.001
+    sr_xsqr = ((y[i][j]-y0[i])*0.001)**2
+    sr_ysqr = (9.81*(m0 + m[i][j])*0.001)**2
+  sr_xy = sr_xy/len(m[i])
+  sr_x = sr_x/len(m[i])
+  sr_y = sr_y/len(m[i])
+  sr_xsqr = sr_xsqr/len(m[i])
+  sr_ysqr = sr_ysqr/len(m[i])
+  f[i] = (sr_xy - sr_x*sr_y)/(sr_xsqr - sr_x**2)
+  df[i] = ((1/len(m[i]))*((sr_ysqr-sr_y**2)/(sr_xsqr - sr_x**2)-f[i]**2))**(1/2)
 
 print("f =", f)
-
-for i in range (0,8):
-  sum_df = 0
-  if i!=4 and i!=5:
-    for j in range (0,11):
-      sum_df += abs(f[i] - 9.81*(m0 + m[i][j])/(y[i][j]-y0[i]))
-    df[i] = sum_df/11
-  else:
-    for j in range (0,9):
-      sum_df += abs(f[i] - 9.81*(m0 + m[i][j])/(y[i][j]-y0[i]))
-    df[i] = sum_df/9
-
-print(df)
+print("df =", df)
 
 
 E = [0, 0, 0, 0, 0, 0, 0, 0]
@@ -242,13 +244,8 @@ for i in range (0,8):
     E[i]= (f[i]*(lAB**3/(4*size_s[4]*0.001*(size_s[5]*0.001)**3)))/10000000000
     dE[i] = (E[i]*((3*dlAB/lAB)**2 + (dsize_s[4]/size_s[4])**2 + (3*dsize_s[5]/size_s[5])**2 + (df[i]/f[i])**2)**(1/2))
 
-print(E)
-print(dE)
-
-print(lAB**3/(4*size_s[4]*0.001*(size_s[5]*0.001)**3))
-print(lAB, size_s[4], size_s[5])
-print(lAB**3/(4*size_s[2]*0.001*(size_s[3]*0.001)**3))
+print("E =", E)
+print("dE =", dE)
 # первая палка - железо
-# вторая палка - латунь, немного попадает в медь, но и не важно
+# вторая палка - латунь, немного попадает в медь, но это не важно
 # третья палка - дубовая
-"""
