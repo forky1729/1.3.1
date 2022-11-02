@@ -3,8 +3,6 @@
 # 1 =========================================================================================
 
 #основные данные
-import numpy as np
-
 r = 15 #mm
 h = 1334 #mm
 gn = 0.1 #cm
@@ -17,8 +15,8 @@ gl = 0.1 #cm
 def dl(n):
   return ((n)*r/(2*h))
 
-def gdl(n):
-  return (n*((gn/n)**2 + (gh/h)**2)**(1/2))
+def gdl(l, n):
+  return (l*((gn/n)**2 + (gh/h)**2)**(1/2))
 
 #удлинение проволоки
 n1 = [12.2, 14.9, 17.7, 20.3, 22.8, 27.6, 25.2, 22.7, 20.1, 17.6, 14.8]
@@ -33,22 +31,34 @@ sum_k = 0
 sum_dk = 0
 
 for i in range (0, len(n1)):
-  print("dl", i, "=", dl(n1[i])*10, "mm", "      gdl", i, "=", gdl(n1[i])*10, "mm")
+  print("dl", i, "=", dl(n1[i])*10, "mm", "      gdl", i, "=", gdl(dl(n1[i]), n1[i])*10, "mm")
   sum_k += 9.81*m1[i]*0.001/(dl(n1[i])*0.01)
-  sum_dk += 0.1*0.001/gdl(n1[i])*0.01
+  #print(9.81*m1[i]*0.001)
   
 for i in range (0, len(n2)):
-  print("dl", i, "=", dl(n2[i])*10, "mm", "      gdl", i, "=", gdl(n2[i])*10, "mm")
+  print("dl", i, "=", dl(n2[i])*10, "mm", "      gdl", i, "=", gdl(dl(n2[i]), n2[i])*10, "mm")
   sum_k += 9.81*m2[i]*0.001/(dl(n2[i])*0.01)
-  sum_dk += 0.1*0.001/gdl(n2[i])*0.01
+  #print(9.81*m2[i]*0.001)
   
 for i in range (0, len(n3)):
-  print("dl", i, "=", dl(n3[i])*10, "mm", "      gdl", i, "=", gdl(n3[i])*10, "mm")
+  print("dl", i, "=", dl(n3[i])*10, "mm", "      gdl", i, "=", gdl(dl(n3[i]), n3[i])*10, "mm")
   sum_k += 9.81*m3[i]*0.001/(dl(n3[i])*0.01)
-  sum_dk += 0.1*0.001/gdl(n3[i])*0.01
+  #print(9.81*m3[i]*0.001)
 
 k = sum_k/(len(n1)+len(n2)+len(n3))
-gk = sum_dk/(len(n1)+len(n2)+len(n3))
+
+for j in range (0, len(n1)):
+  sum_dk += abs(k-9.81*m1[i]*0.001/(dl(n1[i])*0.01))**2
+  
+for j in range (0, len(n2)):
+  sum_dk += abs(k-9.81*m2[i]*0.001/(dl(n2[i])*0.01))**2
+  
+for j in range (0, len(n3)):
+  sum_dk += abs(k-9.81*m3[i]*0.001/(dl(n3[i])*0.01))**2
+
+
+
+gk = (sum_dk/((len(n1)+len(n2)+len(n3))*(len(n1)+len(n2)+len(n3)-1)))**(1/2)
 print("k =", k, "+-", gk)
 
 E = k*l*0.01/(s*0.000001)
@@ -56,7 +66,7 @@ gE = E*((gs/s)**2+(gl/l)**2+(gk/k)**2)**(1/2)
 print("E =", E/10000000000, " +-", gE/10000000000, "*10^10")
 
 #получается, что проволока медная (стр.297)
-
+"""
 
 # 2 =========================================================================================
 
@@ -118,8 +128,8 @@ gb2_r = gb2_s/10
 ga3_r = ga3_s/10
 gb3_r = gb3_s/10
 
-print(a1_r, b1_r, a2_r, b2_r, a3_r, b3_r)
-print(ga1_r, gb1_r, ga2_r, gb2_r, ga3_r, gb3_r)
+#print(a1_r, b1_r, a2_r, b2_r, a3_r, b3_r)
+#print(ga1_r, gb1_r, ga2_r, gb2_r, ga3_r, gb3_r)
 
 y01 = 0.41 #mm      
 y02 = 0.08 #mm      
@@ -146,7 +156,7 @@ for i in range (0, 6):
     sum_s += size [i][h]
   size_s [i] = sum_s/10
 
-print(size_s)
+#print(size_s)
 
 dsize_s = [0, 0, 0, 0, 0, 0]
 
@@ -156,7 +166,7 @@ for i in range (0, 6):
     dsum_s += abs(size_s[i] - size [i][h])
   dsize_s [i] = dsum_s/10
 
-print(dsize_s)
+#print(dsize_s)
 
 m1 = [504.5, 1001.7, 1510.4, 2012.4, 2512.4, 3015.4, 2512.4, 2012.4, 1510.4, 1001.7, 504.5]
 y1 = [1.09, 1.77, 2.47, 3.16, 3.85, 4.55, 3.86, 3.18, 2.48, 1.79, 1.11]
@@ -193,13 +203,15 @@ for i in range (0,8):
   if i!=4 and i!=5:
     for j in range (0,11):
       sum_f += 9.81*(m0 + m[i][j])/(y[i][j]-y0[i])
+      #print(9.81*(m0 + m[i][j])*0.001, "        ", (y[i][j]-y0[i]))
     f[i] = sum_f/11
   else:
     for j in range (0,9):
       sum_f += 9.81*(m0 + m[i][j])/(y[i][j]-y0[i])
+      print(9.81*(m0 + m[i][j])*0.001, "        ", (y[i][j]-y0[i]))
     f[i] = sum_f/9
 
-print(f)
+print("f =", f)
 
 for i in range (0,8):
   sum_df = 0
@@ -233,7 +245,10 @@ for i in range (0,8):
 print(E)
 print(dE)
 
-
+print(lAB**3/(4*size_s[4]*0.001*(size_s[5]*0.001)**3))
+print(lAB, size_s[4], size_s[5])
+print(lAB**3/(4*size_s[2]*0.001*(size_s[3]*0.001)**3))
 # первая палка - железо
 # вторая палка - латунь, немного попадает в медь, но и не важно
 # третья палка - дубовая
+"""
